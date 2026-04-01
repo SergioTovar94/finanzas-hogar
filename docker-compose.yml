@@ -1,0 +1,74 @@
+services:
+
+  # Base de datos MS-1 (Spring Boot)
+  db-core:
+    image: postgres:16
+    container_name: finanzas-db-core
+    environment:
+      POSTGRES_DB: finanzas_core
+      POSTGRES_USER: finanzas_user
+      POSTGRES_PASSWORD: finanzas_pass
+    ports:
+      - "5434:5432"
+    volumes:
+      - db_core_data:/var/lib/postgresql/data
+    networks:
+      - finanzas-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finanzas_user -d finanzas_core"]
+      interval: 10s
+      timeout: 5s
+      retries: 5  
+
+  # Base de datos MS-2 (Django)
+  db-analytics:
+    image: postgres:16
+    container_name: finanzas-db-analytics
+    environment:
+      POSTGRES_DB: finanzas_analytics
+      POSTGRES_USER: finanzas_user
+      POSTGRES_PASSWORD: finanzas_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_analytics_data:/var/lib/postgresql/data
+    networks:
+      - finanzas-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finanzas_user -d finanzas_analytics"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Automatizaciones
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: finanzas-n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin123
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - finanzas-network
+    depends_on:
+      db-core:
+        condition: service_healthy
+      db-analytics:
+        condition: service_healthy
+
+volumes:
+  db_core_data:
+  db_analytics_data:
+  n8n_data:
+
+networks:
+  finanzas-network:
+    driver: bridge
