@@ -57,11 +57,11 @@ graph TD
 # MS-1 Spring Boot — FinanzasHogar
 
 ```mermaid
-graph TD
 ---
 config:
   layout: elk
 ---
+graph TD
     GW["🔀 API Gateway"]
 
     subgraph MS1["MS-1 — Spring Boot :8081"]
@@ -115,11 +115,11 @@ config:
 # MS-2 Django — FinanzasHogar
 
 ```mermaid
-graph TD
 ---
 config:
   layout: elk
 ---
+graph TD
     GW["🔀 API Gateway"]
     MS1["⚙️ MS-1 Spring Boot"]
 
@@ -163,11 +163,11 @@ config:
 # Automatizaciones n8n — FinanzasHogar
 
 ```mermaid
-graph TD
 ---
 config:
   layout: elk
 ---
+graph TD
     subgraph Flow1["Flujo 1 — Alerta de pago próximo a vencer"]
         C1["⏰ Cron\nEjecuta diariamente\na las 8:00 AM"]
         R1["📥 GET /api/core/\nrecurring-payments/due-soon"]
