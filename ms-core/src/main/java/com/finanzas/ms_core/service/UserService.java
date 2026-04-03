@@ -2,6 +2,7 @@ package com.finanzas.ms_core.service;
 
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +12,7 @@ import com.finanzas.ms_core.domain.dto.response.AuthResponse;
 import com.finanzas.ms_core.domain.dto.response.UserResponse;
 import com.finanzas.ms_core.domain.model.User;
 import com.finanzas.ms_core.exception.AuthException;
+import com.finanzas.ms_core.exception.RegistrationException;
 import com.finanzas.ms_core.repository.UserRepository;
 
 @Service
@@ -18,16 +20,24 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
     public UserResponse createUser(RegisterRequest request) {
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RegistrationException("El correo ya está registrado");
+        }
+
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
-                .password_hash(request.getPassword())
+                .password_hash(passwordEncoder.encode(request.getPassword()))
                 .build();
         User savedUser = userRepository.save(user);
         return mapToUserResponse(savedUser);
@@ -45,8 +55,10 @@ public class UserService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AuthException("Usuario no encontrado"));
 
-        if (!user.getPassword_hash().equals(request.getPassword())) {
-            throw new AuthException("Contraseña incorrecta");
+        if (!passwordEncoder.matches(
+                request.getPassword(),
+                user.getPassword_hash())) {
+            throw new AuthException("Credenciales inválidas");
         }
         AuthResponse response = AuthResponse.builder()
                 .token("fake-jwt-token")
@@ -55,7 +67,7 @@ public class UserService {
         return response;
     }
 
-    public UserResponse mapToUserResponse(User user) {
+    private UserResponse mapToUserResponse(User user) {
         return new UserResponse(
                 user.getId(),
                 user.getName(),
