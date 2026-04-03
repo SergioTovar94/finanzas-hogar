@@ -38,7 +38,7 @@ public class UserController {
         return userService.listUsers();
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return userService.login(request);
     }
