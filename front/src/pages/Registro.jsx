@@ -1,24 +1,36 @@
 import { useState } from 'react';
-import { useLogin } from '../hooks/useLogin';
+import { useRegistro } from '../hooks/useRegistro';
 
-function Login() {
+function Registro() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, error, isLoading } = useLogin();
+  const { registro, error, isLoading } = useRegistro();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    login(email, password);
+    registro(name, email, password);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[oklch(97%_0.02_318)] to-[oklch(92%_0.05_318)]">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          Iniciar sesión
+          Regístrate
         </h2>
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && <div className="bg-red-100 text-red-700 p-2 rounded-lg text-sm">{error}</div>}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+              disabled={isLoading}
+              required
+            />
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
             <input
@@ -46,15 +58,15 @@ function Login() {
             disabled={isLoading}
             className="w-full bg-[oklch(49.1%_0.27_292.581)] hover:bg-[oklch(42%_0.27_292.581)] text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50"
           >
-            {isLoading ? 'Cargando...' : 'Ingresar'}
+            {isLoading ? 'Cargando...' : 'Regístrate'}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-gray-600">
-          ¿No tienes cuenta? <a href="/registro" className="text-blue-600 hover:underline">Regístrate</a>
+          ¿Ya tienes cuenta? <a href="/login" className="text-blue-600 hover:underline">Inicia sesión</a>
         </p>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default Registro;
