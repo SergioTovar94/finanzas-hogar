@@ -67,6 +67,14 @@ public class UserService {
         return response;
     }
 
+    @Transactional
+    public void deleteUser(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new RegistrationException("Usuario no encontrado");
+        }
+        userRepository.deleteById(userId);
+    }
+
     private UserResponse mapToUserResponse(User user) {
         return new UserResponse(
                 user.getId(),
