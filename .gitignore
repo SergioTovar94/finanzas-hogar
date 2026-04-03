@@ -1,0 +1,21 @@
+# Dependencias
+node_modules/
+front/node_modules/
+gateway/node_modules/
+
+# Variables de entorno
+.env
+front/.env
+gateway/.env
+
+# Builds
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
