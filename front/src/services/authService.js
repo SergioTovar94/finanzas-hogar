@@ -9,7 +9,7 @@ export const authService = {
       body: JSON.stringify({ email, password }),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Error en login');
+    if (!response.ok) throw new Error(data.message || 'Error en login');
     return data;
   },
 
