@@ -9,9 +9,9 @@ const BACKEND_URL = 'http://localhost:8081';
 app.use(cors());           // Permite llamadas desde el frontend (React)
 app.use(express.json());   // Entiende JSON en las peticiones
 
-app.use('/api', async (req, res) => {
+app.use('/', async (req, res) => {
   try {
-    // Construye la URL del backend: http://localhost:8081 + /api/login
+    // Construye la URL del backend: http://localhost:8081 + /login
     const url = BACKEND_URL + req.originalUrl;
     
     // Reenvía la misma petición al backend
