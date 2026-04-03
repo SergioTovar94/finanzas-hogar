@@ -62,7 +62,7 @@ function Registro() {
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-gray-600">
-          ¿Ya tienes cuenta? <a href="/login" className="text-blue-600 hover:underline">Inicia sesión</a>
+          ¿Ya tienes cuenta? <a href="/" className="text-blue-600 hover:underline">Inicia sesión</a>
         </p>
       </div>
     </div>
