@@ -10,6 +10,7 @@ import com.finanzas.ms_core.domain.dto.request.RegisterRequest;
 import com.finanzas.ms_core.domain.dto.response.AuthResponse;
 import com.finanzas.ms_core.domain.dto.response.UserResponse;
 import com.finanzas.ms_core.domain.model.User;
+import com.finanzas.ms_core.exception.AuthException;
 import com.finanzas.ms_core.repository.UserRepository;
 
 @Service
@@ -42,9 +43,10 @@ public class UserService {
 
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new AuthException("Usuario no encontrado"));
+
         if (!user.getPassword_hash().equals(request.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            throw new AuthException("Contraseña incorrecta");
         }
         AuthResponse response = AuthResponse.builder()
                 .token("fake-jwt-token")
