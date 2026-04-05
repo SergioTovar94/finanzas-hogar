@@ -32,13 +32,15 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public UserResponse createUser(@Valid @RequestBody RegisterRequest request) {
-        return userService.createUser(request);
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody RegisterRequest request) {
+        UserResponse response = userService.createUser(request);
+        return ResponseEntity.status(201).body(response);
     }
 
     @GetMapping()
-    public List<UserResponse> listUsers() {
-        return userService.listUsers();
+    public ResponseEntity<List<UserResponse>> listUsers() {
+        return ResponseEntity.ok(
+                userService.listUsers());
     }
 
     @PostMapping("/login")
