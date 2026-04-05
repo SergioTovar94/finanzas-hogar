@@ -1,135 +1,138 @@
 package com.finanzas.ms_core.exception;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.finanzas.ms_core.domain.dto.response.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- * Manejador global de excepciones para la aplicación.
- *
- * Esta clase intercepta las excepciones lanzadas desde los controladores
- * y servicios, y construye una respuesta estándar para el cliente.
- *
- * Permite centralizar el manejo de errores y evitar duplicación de código
- * en los controladores.
- */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Maneja las excepciones relacionadas con autenticación y autorización.
-     *
-     * Este método se ejecuta cuando se lanza una AuthException en cualquier
-     * parte de la aplicación.
-     *
-     * Responsabilidad:
-     * - Construir una respuesta de error estándar para problemas de autenticación
-     * - Retornar el código HTTP 401 (UNAUTHORIZED)
-     *
-     * Alcance:
-     * - Solo aplica a errores de autenticación o autorización
-     * - No maneja errores de validación, registro o lógica de negocio
-     *
-     * @param ex Excepción de autenticación lanzada
-     * @return Respuesta HTTP con información del error
-     */
+        // 1. Errores de negocio: recurso no encontrado
+        @ExceptionHandler(ResourceNotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleNotFound(
+                        ResourceNotFoundException ex, HttpServletRequest request) {
+                log.warn("Recurso no encontrado: {}", ex.getMessage());
+                ErrorResponse error = ErrorResponse.builder()
+                                .code("NOT_FOUND")
+                                .message(ex.getMessage())
+                                .status(HttpStatus.NOT_FOUND.value())
+                                .timestamp(LocalDateTime.now())
+                                .path(request.getRequestURI())
+                                .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
 
-    @ExceptionHandler(AuthException.class)
-    public ResponseEntity<ErrorResponse> handleAuthException(AuthException ex) {
-        ErrorResponse error = new ErrorResponse(
-                "AUTH_ERROR",
-                ex.getMessage(),
-                HttpStatus.UNAUTHORIZED.value(),
-                LocalDateTime.now());
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-    }
+        // 2. IllegalArgumentException (errores de cliente, datos inválidos)
+        @ExceptionHandler(IllegalArgumentException.class)
+        public ResponseEntity<ErrorResponse> handleIllegalArgument(
+                        IllegalArgumentException ex, HttpServletRequest request) {
+                log.warn("Argumento inválido: {}", ex.getMessage());
+                ErrorResponse error = ErrorResponse.builder()
+                                .code("BAD_REQUEST")
+                                .message(ex.getMessage())
+                                .status(HttpStatus.BAD_REQUEST.value())
+                                .timestamp(LocalDateTime.now())
+                                .path(request.getRequestURI())
+                                .build();
+                return ResponseEntity.badRequest().body(error);
+        }
 
-    /**
-     * Maneja errores relacionados con el registro de usuarios.
-     *
-     * Retorna el código HTTP 400 (BAD REQUEST).
-     */
-    @ExceptionHandler(RegistrationException.class)
-    public ResponseEntity<ErrorResponse> handleRegistrationException(
-            RegistrationException ex) {
+        // 3. Errores de validación con @Valid (cuerpo de la petición)
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<ErrorResponse> handleValidationExceptions(
+                        MethodArgumentNotValidException ex, HttpServletRequest request) {
+                List<String> errors = ex.getBindingResult()
+                                .getFieldErrors()
+                                .stream()
+                                .map(FieldError::getDefaultMessage)
+                                .collect(Collectors.toList());
 
-        ErrorResponse error = new ErrorResponse(
-                "REGISTRATION_ERROR",
-                ex.getMessage(),
-                HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now());
+                log.warn("Error de validación en campos: {}", errors);
+                ErrorResponse error = ErrorResponse.builder()
+                                .code("VALIDATION_ERROR")
+                                .message("Datos de entrada inválidos")
+                                .details(errors) // añade un campo 'details' en ErrorResponse
+                                .status(HttpStatus.BAD_REQUEST.value())
+                                .timestamp(LocalDateTime.now())
+                                .path(request.getRequestURI())
+                                .build();
+                return ResponseEntity.badRequest().body(error);
+        }
 
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-    }
+        // 4. Errores de validación en parámetros de ruta/query
+        @ExceptionHandler({
+                        MissingServletRequestParameterException.class,
+                        MethodArgumentTypeMismatchException.class,
+                        jakarta.validation.ConstraintViolationException.class
+        })
+        public ResponseEntity<ErrorResponse> handleRequestParameterErrors(
+                        Exception ex, HttpServletRequest request) {
+                log.warn("Error en parámetros de petición: {}", ex.getMessage());
+                ErrorResponse error = ErrorResponse.builder()
+                                .code("INVALID_REQUEST_PARAMETER")
+                                .message("Parámetro de petición inválido: " + ex.getMessage())
+                                .status(HttpStatus.BAD_REQUEST.value())
+                                .timestamp(LocalDateTime.now())
+                                .path(request.getRequestURI())
+                                .build();
+                return ResponseEntity.badRequest().body(error);
+        }
 
-    /**
-     * Maneja excepciones de validación de datos.
-     *
-     * Este método actúa cuando ocurre un error de validación en los datos de
-     * entrada,
-     * como cuando un campo obligatorio no se proporciona
-     * o no cumple con las restricciones definidas.
-     * 
-     * Responsabilidad:
-     * - Evitar que el front envíe datos inválidos al backend
-     *
-     * Alcance:
-     * - Solo maneja errores de validación de datos
-     * (MethodArgumentNotValidException)
-     *
-     * @param ex Excepción de validación lanzada
-     * @return Respuesta HTTP 400 (El cliente envió una solicitud inválida)
-     */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(
-            MethodArgumentNotValidException ex) {
+        // 5. Tus excepciones existentes (AuthException, RegistrationException)
+        @ExceptionHandler(AuthException.class)
+        public ResponseEntity<ErrorResponse> handleAuthException(
+                        AuthException ex, HttpServletRequest request) {
+                log.warn("Error de autenticación: {}", ex.getMessage());
+                ErrorResponse error = ErrorResponse.builder()
+                                .code("AUTH_ERROR")
+                                .message(ex.getMessage())
+                                .status(HttpStatus.UNAUTHORIZED.value())
+                                .timestamp(LocalDateTime.now())
+                                .path(request.getRequestURI())
+                                .build();
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        }
 
-        String message = ex.getBindingResult()
-                .getFieldErrors()
-                .get(0)
-                .getDefaultMessage();
+        @ExceptionHandler(RegistrationException.class)
+        public ResponseEntity<ErrorResponse> handleRegistrationException(
+                        RegistrationException ex, HttpServletRequest request) {
+                log.warn("Error de registro: {}", ex.getMessage());
+                ErrorResponse error = ErrorResponse.builder()
+                                .code("REGISTRATION_ERROR")
+                                .message(ex.getMessage())
+                                .status(HttpStatus.BAD_REQUEST.value())
+                                .timestamp(LocalDateTime.now())
+                                .path(request.getRequestURI())
+                                .build();
+                return ResponseEntity.badRequest().body(error);
+        }
 
-        ErrorResponse error = new ErrorResponse(
-                "VALIDATION_ERROR",
-                message,
-                HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now());
-
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * Maneja cualquier excepción no controlada en la aplicación.
-     *
-     * Este método actúa como último recurso cuando ocurre un error
-     * inesperado que no tiene un manejador específico.
-     *
-     * Responsabilidad:
-     * - Evitar que errores internos expongan información sensible
-     * - Retornar una respuesta genérica al cliente
-     *
-     * Alcance:
-     * - Maneja errores generales del sistema
-     * - No debe utilizarse para errores de negocio específicos
-     *
-     * @param ex Excepción genérica lanzada
-     * @return Respuesta HTTP 500 (INTERNAL SERVER ERROR)
-     */
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
-        ErrorResponse error = new ErrorResponse(
-                "INTERNAL_ERROR",
-                "Error interno del servidor",
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                LocalDateTime.now());
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
+        // 6. Fallback para cualquier otro error no esperado (500)
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ErrorResponse> handleGenericException(
+                        Exception ex, HttpServletRequest request) {
+                log.error("Error interno no controlado en {}: {}", request.getRequestURI(), ex.getMessage(), ex);
+                ErrorResponse error = ErrorResponse.builder()
+                                .code("INTERNAL_SERVER_ERROR")
+                                .message("Ha ocurrido un error interno. Por favor, intente más tarde.")
+                                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                                .timestamp(LocalDateTime.now())
+                                .path(request.getRequestURI())
+                                .build();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
 }
