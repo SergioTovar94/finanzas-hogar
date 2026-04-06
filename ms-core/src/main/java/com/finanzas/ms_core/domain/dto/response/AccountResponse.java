@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 import com.finanzas.ms_core.domain.model.AccountType;
 import com.finanzas.ms_core.domain.model.Currency;
-import com.finanzas.ms_core.domain.model.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
