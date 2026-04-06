@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRegistro } from '../hooks/useRegistro';
 
-function Registro() {
+function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
