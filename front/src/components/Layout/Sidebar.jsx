@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom';
-import { HomeIcon, CreditCardIcon, ChartBarIcon, LockOpenIcon, CogIcon  } from "@heroicons/react/24/outline";
+import { HomeIcon, CreditCardIcon, ChartBarIcon, LockOpenIcon, CogIcon, ArrowsRightLeftIcon } from "@heroicons/react/24/outline";
 const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-    { name: 'Accounts', href: '/cuentas', icon: CreditCardIcon },
-    { name: 'Reports', href: '/reportes', icon: ChartBarIcon },
-    { name: 'Settings', href: '/conf', icon: CogIcon },
+    { name: 'Transactions', href: '/transactions', icon: ArrowsRightLeftIcon },
+    { name: 'Accounts', href: '/accounts', icon: CreditCardIcon },
+    { name: 'Reports', href: '/reports', icon: ChartBarIcon },
+    { name: 'Settings', href: '/settings', icon: CogIcon },
     { name: 'Logout', href: '/', icon: LockOpenIcon },
 ]
 
