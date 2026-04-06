@@ -1,6 +1,5 @@
-// front/src/hooks/useRegistro.js
 import { useState } from 'react';
-import { usersService } from '../services/usersService';
+import { authService } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 
 export const useRegistro = () => {
@@ -12,8 +11,7 @@ export const useRegistro = () => {
     setError('');
     setIsLoading(true);
     try {
-      const data = await usersService.registro(name, email, password);
-      if (data.token) usersService.saveToken(data.token);
+      await authService.registro(name, email, password); // ← solo llamar, sin token
       navigate('/dashboard');
     } catch (err) {
       setError(err.message);
