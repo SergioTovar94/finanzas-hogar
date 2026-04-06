@@ -48,6 +48,7 @@ public class AccountService {
                 .map(this::mapToAccountResponse).toList();
     }
 
+    @Transactional
     public void deleteAccount(Long id) {
         if (!accountRepository.existsById(id)) {
             throw new ResourceNotFoundException("Cuenta no encontrada con ID: " + id);
