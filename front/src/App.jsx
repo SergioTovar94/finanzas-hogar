@@ -1,6 +1,6 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Login from './pages/Login';
-import Register from './pages/Register'; './pages/Register';
+import Register from './pages/Register';
 
 import Layout from './components/Layout/Layout';
 import Dashboard from './pages/Dashboard';
@@ -8,7 +8,6 @@ import Accounts from './pages/Accounts';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import Transactions from './pages/Transactions';
-import Register from './pages/Register';
 
 function App() {
   return (
