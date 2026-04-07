@@ -1,7 +1,9 @@
 package com.finanzas.ms_core.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.finanzas.ms_core.domain.dto.request.TransactionRequest;
@@ -49,8 +51,30 @@ public class TransactionService {
                 return mapToResponse(savedTransaction);
         }
 
-        public List<TransactionResponse> getTransactions() {
-                List<Transaction> transactions = transactionRepository.findAll();
+        public List<TransactionResponse> getTransactions(String month, Long accountId, Long categoryId, String type) {
+                List<Specification<Transaction>> specifications = new ArrayList<>();
+                if (month != null && !month.isBlank()) {
+                        specifications.add(TransactionSpecifications.byMonth(month));
+                }
+                if (accountId != null) {
+                        specifications.add(TransactionSpecifications.byAccountId(accountId));
+                }
+                if (categoryId != null) {
+                        specifications.add(TransactionSpecifications.byCategoryId(categoryId));
+                }
+                if (type != null && !type.isBlank()) {
+                        specifications.add(TransactionSpecifications.byType(type));
+                }
+
+                List<Transaction> transactions;
+                if (specifications.isEmpty()) {
+                        transactions = transactionRepository.findAll();
+                } else {
+                        Specification<Transaction> combined = specifications.stream()
+                                        .reduce(Specification::and)
+                                        .orElseThrow();
+                        transactions = transactionRepository.findAll(combined);
+                }
                 return transactions.stream()
                                 .map(this::mapToResponse)
                                 .toList();
