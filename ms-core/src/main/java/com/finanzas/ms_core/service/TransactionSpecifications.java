@@ -19,7 +19,7 @@ public class TransactionSpecifications {
         YearMonth ym = YearMonth.parse(month); // formato "YYYY-MM"
         LocalDateTime start = ym.atDay(1).atStartOfDay();
         LocalDateTime end = ym.atEndOfMonth().atTime(23, 59, 59);
-        return (root, query, cb) -> cb.between(root.get("transactionDate"), start, end);
+        return (root, query, cb) -> cb.between(root.get("date"), start, end);
     }
 
     public static Specification<Transaction> byAccountId(Long accountId) {
