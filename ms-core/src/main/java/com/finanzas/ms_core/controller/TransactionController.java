@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.finanzas.ms_core.domain.dto.request.TransactionRequest;
@@ -35,8 +36,12 @@ public class TransactionController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<TransactionResponse>> getTransactions() {
-        List<TransactionResponse> transactions = transactionService.getTransactions();
+    public ResponseEntity<List<TransactionResponse>> getTransactions(
+            @RequestParam(required = false) String month,
+            @RequestParam(required = false) Long accountId,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String type) {
+        List<TransactionResponse> transactions = transactionService.getTransactions(month, accountId, categoryId, type);
         return ResponseEntity.ok(transactions);
     }
 
