@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.finanzas.ms_core.domain.dto.request.CategoryRequest;
@@ -34,8 +35,9 @@ public class CategoryController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<CategoryResponse>> getCategories() {
-        List<CategoryResponse> categories = categoryService.getCategories();
+    public ResponseEntity<List<CategoryResponse>> getCategories(
+            @RequestParam(required = false) String type) {
+        List<CategoryResponse> categories = categoryService.getCategories(type);
         return ResponseEntity.ok(categories);
     }
 

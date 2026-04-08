@@ -1,7 +1,9 @@
 package com.finanzas.ms_core.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.finanzas.ms_core.domain.dto.request.CategoryRequest;
@@ -36,8 +38,20 @@ public class CategoryService {
         return mapCategoryResponse(savedCategory);
     }
 
-    public List<CategoryResponse> getCategories() {
-        List<Category> categories = categoryRepository.findAll();
+    public List<CategoryResponse> getCategories(String type) {
+        List<Specification<Category>> specifications = new ArrayList<>();
+        if (type != null && !type.isBlank()) {
+            specifications.add(CategorySpecifications.byType(type));
+        }
+        List<Category> categories;
+        if (specifications.isEmpty()) {
+            categories = categoryRepository.findAll();
+        } else {
+            Specification<Category> combined = specifications.stream()
+                    .reduce(Specification::and)
+                    .orElseThrow();
+            categories = categoryRepository.findAll(combined);
+        }
         return categories.stream()
                 .map(this::mapCategoryResponse).toList();
     }
