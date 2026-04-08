@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import TransactionTable from '../components/Transactions/TransactionTable';
 import TransactionIncome from '../components/Transactions/TransactionIncome';
 import TransactionExpense from '../components/Transactions/TransactionExpense'
-import Account from '../components/Accounts/Account';
 import MonthSelector from '../components/common/MonthSelector';
 import { useTransactions } from '../hooks/useTransactions';
 
@@ -10,7 +9,6 @@ function Transactions() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isIncomeOpen, setIsIncomeOpen] = useState(false);
   const [isExpenseOpen, setIsExpenseOpen] = useState(false);
-  const [isAccount, setIsAccount] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
 
   const {
@@ -31,12 +29,6 @@ function Transactions() {
     setEditingTransaction(null);
     setIsExpenseOpen(true);
   };
-
-  const handleAccount = () => {
-    setEditingTransaction(null);
-    setIsAccount(true);
-  };
-
 
   const handleEdit = (transaction) => {
     setEditingTransaction(transaction);
@@ -80,12 +72,6 @@ function Transactions() {
           >
             + Reg. Ingreso
           </button>
-          <button
-            onClick={handleAccount}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Agregar Cuenta
-          </button>
         </div>
       </div>
 
@@ -108,12 +94,6 @@ function Transactions() {
       <TransactionExpense
         isOpen={isExpenseOpen}
         onClose={() => setIsExpenseOpen(false)}
-        onSave={handleSave}
-        initialData={editingTransaction}
-      />
-      <Account
-        isOpen={isAccount}
-        onClose={() => setIsAccount(false)}
         onSave={handleSave}
         initialData={editingTransaction}
       />
