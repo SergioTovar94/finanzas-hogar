@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import TransactionTable from '../components/Transactions/TransactionTable';
-import TransactionModal from '../components/Transactions/TransactionModal';
+import TransactionIncome from '../components/Transactions/TransactionIncome';
+import TransactionExpense from '../components/Transactions/TransactionExpense'
+import Account from '../components/Accounts/Account';
 import MonthSelector from '../components/common/MonthSelector';
 import { useTransactions } from '../hooks/useTransactions';
 
 function Transactions() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isIncomeOpen, setIsIncomeOpen] = useState(false);
+  const [isExpenseOpen, setIsExpenseOpen] = useState(false);
+  const [isAccount, setIsAccount] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
 
   const {
@@ -18,10 +22,21 @@ function Transactions() {
     deleteTransaction,
   } = useTransactions();
 
-  const handleAdd = () => {
+  const handleAddIncome = () => {
     setEditingTransaction(null);
-    setIsModalOpen(true);
+    setIsIncomeOpen(true);
   };
+
+  const handleAddExpense = () => {
+    setEditingTransaction(null);
+    setIsExpenseOpen(true);
+  };
+
+  const handleAccount = () => {
+    setEditingTransaction(null);
+    setIsAccount(true);
+  };
+
 
   const handleEdit = (transaction) => {
     setEditingTransaction(transaction);
@@ -54,10 +69,22 @@ function Transactions() {
         <div className="flex gap-3">
           <MonthSelector currentDate={currentDate} onChange={setCurrentDate} />
           <button
-            onClick={handleAdd}
+            onClick={handleAddExpense}
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            - Reg. Egreso
+          </button>
+          <button
+            onClick={handleAddIncome}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            + Reg. Ingreso
+          </button>
+          <button
+            onClick={handleAccount}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
-            + Nueva transacción
+            Agregar Cuenta
           </button>
         </div>
       </div>
@@ -72,9 +99,21 @@ function Transactions() {
         />
       )}
 
-      <TransactionModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+      <TransactionIncome
+        isOpen={isIncomeOpen}
+        onClose={() => setIsIncomeOpen(false)}
+        onSave={handleSave}
+        initialData={editingTransaction}
+      />
+      <TransactionExpense
+        isOpen={isExpenseOpen}
+        onClose={() => setIsExpenseOpen(false)}
+        onSave={handleSave}
+        initialData={editingTransaction}
+      />
+      <Account
+        isOpen={isAccount}
+        onClose={() => setIsAccount(false)}
         onSave={handleSave}
         initialData={editingTransaction}
       />

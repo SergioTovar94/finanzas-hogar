@@ -1,8 +1,8 @@
 // components/Transactions/TransactionModal.jsx
 import { useState, useEffect } from 'react';
-import { useTransactions } from '../../hooks/useTransactions';
+import { useAccounts } from '../../hooks/useAccounts';
 
-export default function TransactionModal({ isOpen, onClose, onSave, initialData }) {
+export default function TransactionIncome({ isOpen, onClose, onSave, initialData }) {
   const [formData, setFormData] = useState({
     categoryId: '',
     accountId: '',
@@ -10,7 +10,7 @@ export default function TransactionModal({ isOpen, onClose, onSave, initialData 
     amount: '',
     date: '',
   });
-  const { categories, accounts } = useTransactions();
+  const { accounts, users} = useAccounts();
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -55,51 +55,78 @@ export default function TransactionModal({ isOpen, onClose, onSave, initialData 
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
         <h2 className="text-xl font-bold mb-4">
-          {initialData ? 'Editar transacción' : 'Nuevo egreso'}
+          {initialData ? 'Editar Cuenta' : 'Nueva Cuenta'}
         </h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">¿Qué vas a pagar?</label>
+            <label className="block text-sm font-medium text-gray-700">¿A nombre de quién está la cuenta?</label>
             <select
-              name="categoryId"
-              value={formData.categoryId}
+              name="userId"
+              value={formData.userId}
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md p-2"
               required
             >
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name}
                 </option>
               ))}
             </select>
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">¿De qué cuenta saldrá el dinero?</label>
+            <label className="block text-sm font-medium text-gray-700">Banco</label>
             <select
-              name="accountId"
-              value={formData.accountId}
+              name="bank"
+              value={formData.bank}
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md p-2"
               required
             >
-              {accounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.name}
-                </option>
-              ))}
+                <option key="bank" value="Confiar">Confiar</option>
+                <option key="bank" value="Daviplata">Daviplata</option>
+                <option key="bank" value="Davivienda">Davivienda</option>
+                <option key="bank" value="Nequi">Nequi</option>
             </select>
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Descripción</label>
+            <label className="block text-sm font-medium text-gray-700">Moneda</label>
+            <select
+              name="currency"
+              value={formData.currency}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              required
+            >
+                <option key="currency" value="currency">
+                  COP
+                </option>
+            </select>
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Saldo inicial</label>
             <input
               type="text"
-              name="description"
-              value={formData.description}
+              name="balance"
+              value={formData.balance}
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md p-2"
               step="0.01"
             />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Tipo de Cuenta</label>
+            <select
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              required
+            >
+                <option key="type" value="type">Ahorros</option>
+                <option key="type" value="type">Corriente</option>
+                <option key="type" value="type">Crédito</option>
+            </select>
           </div>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">Valor ($)</label>
@@ -113,17 +140,14 @@ export default function TransactionModal({ isOpen, onClose, onSave, initialData 
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Fecha
-            </label>
-
+            <label className="block text-sm font-medium text-gray-700">Descripción</label>
             <input
-              type="date"
-              name="date"
-              value={formData.date}
+              type="text"
+              name="balance"
+              value={formData.balance}
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-              required
+              step="0.01"
             />
           </div>
           <div className="flex justify-end gap-2">

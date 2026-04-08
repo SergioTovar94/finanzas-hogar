@@ -5,7 +5,8 @@ import { accountService } from "../services/accountsService";
 
 export const useTransactions = () => {
     const [transactions, setTransactions] = useState([]);
-    const [categories, setCategories] = useState([]);
+    const [catIncome, setCatIncome] = useState([]);
+    const [catExpense, setCatExpense] = useState([]);
     const [accounts, setAccounts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -14,10 +15,12 @@ export const useTransactions = () => {
         setLoading(true);
         try {
             const transacciones = await transactionService.getAll();
-            const categorias = await categoryService.getAll();
+            const income = await categoryService.getAll({ "type": 'INCOME' });
+            const expense = await categoryService.getAll({ "type": 'EXPENSE' });
             const cuentas = await accountService.getAll();
             setTransactions(transacciones);
-            setCategories(categorias);
+            setCatIncome(income);
+            setCatExpense(expense);
             setAccounts(cuentas);
             setError(null);
         } catch (err) {
@@ -63,7 +66,8 @@ export const useTransactions = () => {
 
     return {
         transactions,
-        categories,
+        catIncome,
+        catExpense,
         accounts,
         loading,
         error,
