@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 
 @Tag(name = "Usuarios", description = "Operaciones para gestionar usuarios del sistema")
 @RestController
@@ -74,6 +75,17 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Editar usuario", description = "Edita un usuario del sistema a partir de us Id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Actualización exitosa"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos")
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody RegisterRequest request) {
+        UserResponse user = userService.updateUser(id, request);
+        return ResponseEntity.status(200).body(user);
     }
 
 }

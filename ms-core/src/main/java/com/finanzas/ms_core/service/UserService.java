@@ -13,6 +13,7 @@ import com.finanzas.ms_core.domain.dto.response.UserResponse;
 import com.finanzas.ms_core.domain.model.User;
 import com.finanzas.ms_core.exception.AuthException;
 import com.finanzas.ms_core.exception.RegistrationException;
+import com.finanzas.ms_core.exception.ResourceNotFoundException;
 import com.finanzas.ms_core.repository.UserRepository;
 
 @Service
@@ -73,6 +74,16 @@ public class UserService {
             throw new RegistrationException("Usuario no encontrado");
         }
         userRepository.deleteById(userId);
+    }
+
+    @Transactional
+    public UserResponse updateUser(Long id, RegisterRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        user.setName(request.getName());
+        user.setEmail(user.getEmail());
+        User updated = userRepository.save(user);
+        return mapToUserResponse(updated);
     }
 
     private UserResponse mapToUserResponse(User user) {
